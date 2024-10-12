@@ -1,0 +1,103 @@
+/* Общий стиль */
+body {
+    font-family: 'Roboto', sans-serif;
+    background: linear-gradient(135deg, #4a90e2, #6dd5ed); /* Градиент из яркого синего и teal */
+    color: #fff;
+    overflow-x: hidden; /* Чтобы не было горизонтальной прокрутки */
+}
+
+/* Шапка сайта */
+header {
+    background-color: rgba(0, 0, 0, 0.7);
+}
+
+header h1 {
+    font-size: 2.5rem;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* Карточки товаров */
+.card {
+    border: none;
+    border-radius: 10px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background-color: #fff; /* Белый фон для карточек товаров */
+    color: #333;
+    overflow: hidden; /* Обрезка для анимации изображения */
+}
+
+.card:hover {
+    transform: translateY(-10px) scale(1.02); /* Поднимаем карточку при наведении */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+}
+
+/* Размеры изображений */
+.card-img-top {
+    object-fit: cover;
+    height: 300px;
+    transition: transform 0.3s ease; /* Плавный переход для изображения */
+}
+
+.card:hover .card-img-top {
+    transform: scale(1.1); /* Увеличиваем изображение при наведении */
+}
+
+/* Кнопки */
+.btn {
+    border-radius: 50px;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+    transform: scale(1.05); /* Увеличиваем кнопку при наведении */
+}
+
+/* Секция новинок */
+#new-arrivals {
+    background-color: rgba(255, 255, 255, 0.9); /* Полупрозрачный фон для секции */
+    padding: 60px 0;
+    border-radius: 10px;
+}
+
+#new-arrivals h2 {
+    font-size: 2.2rem;
+    margin-bottom: 40px;
+}
+
+/* Футер */
+footer {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+}
+
+footer p {
+    margin: 0;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 2rem;
+    }
+
+    #new-arrivals h2 {
+        font-size: 1.8rem;
+    }
+
+    .card {
+        margin-bottom: 20px; /* Добавим отступ между карточками */
+    }
+
+    .btn {
+        font-size: 0.9rem; /* Уменьшаем размер кнопок для мобильных устройств */
+    }
+}
