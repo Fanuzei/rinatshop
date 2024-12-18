@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HWID Проверка</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-size: 16px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h1>Проверка HWID</h1>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    // Функция для получения WebGL fingerprint
+    function getWebGLFingerprint() {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+      if (!gl) {
+        console.error('WebGL не поддерживается вашим браузером - сообщите администратору discord: m1lehvh');
+        return null;
+      }
+
+      // Получаем информацию о GPU
+      const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+      if (!debugInfo) {
+        console.error('WebGL Debug Extension не поддерживается');
+        return null;
+      }
+
+      const vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+      const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+
+      // Создаем уникальный идентификатор на основе этой информации
+      const fingerprint = vendor + " " + renderer;
+      return fingerprint;
+    }
+
+    // Функция для проверки на Pastebin через CORS Proxy (AllOrigins)
+    function checkHwid(fingerprint) {
+      const pastebinUrl = 'https://api.allorigins.win/raw?url=https://pastebin.com/raw/bYTwGyPb';  // Используем AllOrigins Proxy
+
+      fetch(pastebinUrl)
+        .then(response => response.text())
+        .then(data => {
+          // Ищем только уникальный идентификатор в скобках (например, "0x00001380")
+          const regex = /\(0x[0-9A-Fa-f]+\)/; // Регулярное выражение для поиска текста в скобках
+          const match = fingerprint.match(regex);
+
+          if (match) {
+            const hwid = match[0].replace(/[()]/g, ''); // Убираем скобки
+            if (data.includes(hwid)) {
+              document.getElementById('result').innerHTML = 'HWID найден в базе данных!';
+              // Перенаправление на другой HTML файл
+              setTimeout(function() {
+                window.location.href = 'sucobf.html';  // Замените на свой файл, куда хотите перенаправить
+              }, 2000);  // Задержка 2 секунды перед переходом
+            } else {
+              document.getElementById('result').innerHTML = 'Ошибка: HWID  не найден в базе данных.';
+            }
+          } else {
+            document.getElementById('result').innerHTML = 'Не удалось извлечь HWID .';
+          }
+        })
+        .catch(error => {
+          document.getElementById('result').innerHTML = 'Ошибка при проверке HWID.';
+          console.error('Error fetching data:', error);
+        });
+    }
+
+    // Выводим WebGL fingerprint в консоль при загрузке страницы
+    window.onload = function() {
+      const fingerprint = getWebGLFingerprint();
+
+      if (fingerprint) {
+        console.log("Device WebGL Fingerprint:", fingerprint);
+        checkHwid(fingerprint); // Проверка на Pastebin
+      } else {
+        console.log('Не удалось получить уникальный идентификатор устройства .');
+        document.getElementById('result').innerHTML = 'Не удалось получить уникальный идентификатор .';
+      }
+    };
+  </script>
+
+</body>
+</html>

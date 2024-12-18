@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>M1le obfuscate v2</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    <script>if (!sessionStorage.getItem("_swa") && document.referrer.indexOf(location.protocol + "//" + location.host) !== 0) { fetch("https://counter.dev/track?" + new URLSearchParams({ referrer: document.referrer, screen: screen.width + "x" + screen.height, user: "juanmeister", utcoffset: "1" })) }; sessionStorage.setItem("_swa", "1");</script>
+</head>
+
+<body>
+    <section class="hero is-white is-medium">
+        <div class="hero-body">
+            <div class="container">
+                <div class="columns">
+                    <div class="column is-two-thirds-tablet is-three-quarter-desktop">
+                        <h1 class="title">M1le obfuscate v2 (prem version)</h1>
+                        <p>Premium obfuscator by M1le</p>
+                        <p><br>Обфускатор гарантирует 100% защиту</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-two-thirds-tablet is-half-desktop">
+                    <div class="form">
+                        <div class="field">
+                            <label class="label">Выберите ваш скрипт:</label>
+                            <div class="control">
+                                <div class="file has-name">
+                                    <label class="file-label">
+                                        <input class="file-input" type="file" accept=".lua,.txt" id="file">
+                                        <span class="file-cta"><span class="file-icon"><i
+                                                    class="fas fa-upload"></i></span><span
+                                                class="file-label">Выбрать...</span></span>
+                                        <span class="file-name" id="file-name">Луа не загружена.</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <p class="help"></p>
+                        </div>
+                        <div class="field">
+                            <p>Для 100% защиты включите byte code</p>
+                        </div>
+
+                        <div class="field">
+                            <label class="checkbox">
+                                byte code obfuscation
+                                <input type="checkbox" id="bytecode"> </label>
+                        </div>
+
+
+                        <div class="field">
+                            <div class="control">
+                                <button class="button is-link is-medium" id="encrypt"
+                                    style="background-color: #4a4a4a"><span class="file-icon"><i
+                                            class="fas fa-download"></i></span> Скачать обфусцированный файл</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script src="bundle.js"></script>
+</body>
+
+</html>
