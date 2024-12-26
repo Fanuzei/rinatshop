@@ -1,1 +1,1 @@
-{"version_nightly": "0.1", "version_free": "0.1"}
+{"version_nightly": "1.6", "version_free": "1.6"}
