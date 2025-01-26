@@ -1,1 +1,6 @@
-dsdfsdf
+{
+    "frizi12": {"password":"20139123","expiration":"2025-02-10","version":"beta"},
+    "m1le": {"password": "rafismgg", "expiration": "9999-01-20","version":"owner"},
+    "1": {"password": "1", "expiration": "9999-01-20","version":"owner"},
+    "dandik": {"password": "raaar", "expiration": "2025-11-20","version":"admin"},
+} 
