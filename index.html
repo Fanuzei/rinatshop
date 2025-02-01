@@ -1,118 +1,59 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Вход</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background-color: #f4f4f4;
-    }
-    .login-form {
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      width: 300px;
-    }
-    .login-form h2 {
-      text-align: center;
-    }
-    .form-group {
-      margin-bottom: 15px;
-    }
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 10px;
-      font-size: 14px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-    .form-group button {
-      width: 100%;
-      padding: 10px;
-      font-size: 14px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .form-group button:hover {
-      background-color: #45a049;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Хантер Лоадер 1.1</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+
+        @keyframes rainbow {
+            0% { color: red; }
+            16% { color: orange; }
+            33% { color: yellow; }
+            50% { color: green; }
+            66% { color: blue; }
+            83% { color: indigo; }
+            100% { color: violet; }
+        }
+
+        .title {
+            font-size: 48px;
+            font-weight: bold;
+            animation: rainbow 3s infinite linear;
+        }
+
+        .download-button {
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 20px;
+            color: white;
+            background: linear-gradient(45deg, #ff0000, #ff7300, #ffeb00, #47ff00, #00ffee, #0044ff, #9b00ff);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .download-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+        }
+    </style>
 </head>
 <body>
-
-  <div class="login-form">
-    <h2>Вход</h2>
-    <div class="form-group">
-      <label for="username">Логин</label>
-      <input type="text" id="username" placeholder="Введите логин">
-    </div>
-    <div class="form-group">
-      <label for="password">Пароль</label>
-      <input type="password" id="password" placeholder="Введите пароль">
-    </div>
-    <div class="form-group">
-      <label for="accountType">Тип обфускатора</label>
-      <select id="accountType">
-        <option value="default">Default</option>
-        <option value="premium">Premium</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <button onclick="login()">Войти</button>
-    </div>
-  </div>
-
-  <script>
-
-    const credentials = {
-      default: {
-        usernameHash: '6e3acf2e0febd7a60a81e53a5917fcef35399ddf7ebb6ccf59fba9fc9bad596a', // default type
-        passwordHash: '3f51eaa34bf91dbad34ac1a8b412d58dedd56cb0afd9aeb15390ea9e46d83a0a'
-      },
-      premium: {
-        usernameHash: '441957ea3c6ee8357bb8d3a1a32341babf284884cb4f3aee9666ea3a95554a56', // premium type
-        passwordHash: '23edd7e26e6ac5cc1af21124b0fc1aeaf0527c2d672cb92e40a7208694e3a036'  
-      }
-    };
-
-    function login() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
-      const accountType = document.getElementById('accountType').value;
-      
-
-      const hashedUsername = CryptoJS.SHA256(username).toString(CryptoJS.enc.Hex); 
-      const hashedPassword = CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex); 
-      // Выводим хэши в консоль
-      console.log('Введённый логин (хэш): ' + hashedUsername);
-      console.log('Введённый пароль (хэш): ' + hashedPassword);
-      
-
-      if (hashedUsername === credentials[accountType].usernameHash && hashedPassword === credentials[accountType].passwordHash) {
-
-        if (accountType === 'default') {
-          window.location.href = 'Kg10g.html'; 
-        } else if (accountType === 'premium') {
-          window.location.href = 'Lop28jai1.html'; 
-        }
-      } else {
-        alert('Неверный логин или пароль');
-      }
-    }
-  </script>
-
+    <div class="title">Хантер Лоадер 1.1</div>
+    <a href="loader.exe" class="download-button" download>Скачать</a>
 </body>
 </html>
