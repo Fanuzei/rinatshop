@@ -1,59 +1,1054 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Хантер 1.4</title>
+    <title>User Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
+        :root {
+            --primary: #4361ee;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .form-container {
+            padding: 30px;
+        }
+        
+        h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: var(--transition);
+            resize: vertical;
+            min-height: 100px;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.danger {
+            background-color: var(--danger);
+        }
+        
+        button.warning {
+            background-color: var(--warning);
+        }
+        
+        button.success {
+            background-color: var(--success);
+        }
+        
+        .status-container {
+            margin-top: 20px;
+        }
+        
+        .notification {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .notification.success {
+            background-color: rgba(76, 201, 240, 0.1);
+            color: #0a9396;
+            border-left: 4px solid var(--success);
+        }
+        
+        .notification.error {
+            background-color: rgba(247, 37, 133, 0.1);
+            color: var(--danger);
+            border-left: 4px solid var(--danger);
+        }
+        
+        .notification.info {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .notification.warning {
+            background-color: rgba(248, 150, 30, 0.1);
+            color: var(--warning);
+            border-left: 4px solid var(--warning);
+        }
+        
+        .notification i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+        
+        .connection-status {
+            padding: 10px 15px;
+            border-radius: 0 0 var(--border-radius) var(--border-radius);
+            text-align: center;
+            font-weight: 500;
+        }
+        
+        .connection-status.connected {
+            background-color: rgba(76, 201, 240, 0.2);
+            color: #0a9396;
+        }
+        
+        .connection-status.disconnected {
+            background-color: rgba(247, 37, 133, 0.2);
+            color: var(--danger);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 14px;
+        }
+        
+        .users-table th, .users-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .users-table th {
+            background-color: #f8f9fa;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .users-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+        }
+        
+        .tab.active {
+            border-bottom-color: var(--primary);
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .edit-form {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+        }
+        
+        .ping-indicator {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .ping-good {
+            background-color: #4cc9f0;
+        }
+        
+        .ping-medium {
+            background-color: #f8961e;
+        }
+        
+        .ping-bad {
+            background-color: #f72585;
+        }
+        
+        .ping-value {
+            position: absolute;
+            top: 8px;
+            left: 30px;
+            font-size: 12px;
+        }
+
+        .heart-pulse {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: #ccc;
+            animation: none;
+        }
+
+        .heart-pulse.connected {
+            color: #f72585;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .info-panel {
+            position: fixed;
+            bottom: 60px;
+            right: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 250px;
+            transform: translateY(20px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .info-panel.visible {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .info-panel h3 {
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .info-link {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            color: var(--dark);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .info-link:hover {
+            color: var(--primary);
+        }
+
+        .info-link i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .info-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 60px;
+            background: var(--primary);
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            background-color: white;
-            font-family: Arial, sans-serif;
-            margin: 0;
-        }
-
-        @keyframes rainbow {
-            0% { color: red; }
-            16% { color: orange; }
-            33% { color: yellow; }
-            50% { color: green; }
-            66% { color: blue; }
-            83% { color: indigo; }
-            100% { color: violet; }
-        }
-
-        .title {
-            font-size: 48px;
-            font-weight: bold;
-            animation: rainbow 3s infinite linear;
-        }
-
-        .download-button {
-            margin-top: 20px;
-            padding: 15px 30px;
-            font-size: 20px;
-            color: white;
-            background: linear-gradient(45deg, #ff0000, #ff7300, #ffeb00, #47ff00, #00ffee, #0044ff, #9b00ff);
-            border: none;
-            border-radius: 10px;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            text-decoration: none;
-            display: inline-block;
+            box-shadow: var(--box-shadow);
+            z-index: 101;
+            transition: var(--transition);
         }
 
-        .download-button:hover {
+        .info-toggle:hover {
             transform: scale(1.1);
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
 <body>
-    <div class="title">Хантер 1.4</div>
-    <a href="loader.exe" class="download-button" download>Скачать</a>
+    <div class="container">
+        <div id="pingIndicator" class="ping-indicator ping-bad"></div>
+        <div id="pingValue" class="ping-value">- ms</div>
+        
+        <div id="loginForm" class="form-container">
+            <h2>Admin Login</h2>
+            <div class="form-group">
+                <label for="adminLogin">Username</label>
+                <input type="text" id="adminLogin" placeholder="Enter your username">
+            </div>
+            <div class="form-group">
+                <label for="adminPassword">Password</label>
+                <input type="password" id="adminPassword" placeholder="Enter your password">
+            </div>
+            <div class="form-group">
+                <input type="checkbox" id="rememberMe">
+                <label for="rememberMe" style="display: inline; font-weight: normal;">Remember me</label>
+            </div>
+            <button id="loginBtn">
+                <span id="loginText">Login</span>
+                <span id="loginSpinner" class="hidden"><div class="loading"></div> Logging in...</span>
+            </button>
+            
+            <div class="status-container">
+                <div id="status"></div>
+            </div>
+        </div>
+
+        <div id="adminPanel" class="form-container hidden">
+            <div class="tab-container">
+                <div class="tab active" data-tab="users">Manage Users</div>
+                <div class="tab" data-tab="add-user">Add New User</div>
+                <div class="tab" data-tab="maintenance">Maintenance</div>
+            </div>
+            
+            <div id="users-tab" class="tab-content active">
+                <h2>User Management</h2>
+                <div class="form-group">
+                    <input type="text" id="searchUsers" placeholder="Search users...">
+                </div>
+                <table class="users-table">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Group</th>
+                            <th>Expires</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersList">
+                    </tbody>
+                </table>
+                
+                <div id="editUserForm" class="edit-form hidden">
+                    <h3>Edit User</h3>
+                    <div class="form-group">
+                        <label for="editLogin">Username</label>
+                        <input type="text" id="editLogin" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="editPassword">New Password (leave empty to keep current)</label>
+                        <input type="text" id="editPassword" placeholder="Enter new password">
+                    </div>
+                    <div class="form-group">
+                        <label for="editGroupId">Group</label>
+                        <select id="editGroupId">
+                            <option value="0">Regular User</option>
+                            <option value="1">Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editExpiresInDays">Expires in (days, 0 for never)</label>
+                        <input type="number" id="editExpiresInDays" min="0" value="0">
+                    </div>
+                    <div class="action-buttons">
+                        <button id="saveEditBtn" class="success">Save Changes</button>
+                        <button id="cancelEditBtn" class="warning">Cancel</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="maintenance-tab" class="tab-content">
+                <h2>Server Maintenance</h2>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="maintenanceEnabled">
+                        Enable Maintenance Mode
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="maintenanceReason">Maintenance Reason</label>
+                    <textarea id="maintenanceReason" rows="4" placeholder="Enter maintenance reason message"></textarea>
+                </div>
+                <button id="saveMaintenanceBtn">
+                    <span id="saveMaintenanceText">Save Settings</span>
+                    <span id="saveMaintenanceSpinner" class="hidden"><div class="loading"></div> Saving...</span>
+                </button>
+                
+                <div class="status-container">
+                    <div id="maintenanceStatus"></div>
+                </div>
+            </div>
+
+            <div id="add-user-tab" class="tab-content">
+                <h2>Add New User</h2>
+                <div class="form-group">
+                    <label for="newLogin">Username</label>
+                    <input type="text" id="newLogin" placeholder="Enter new username" required>
+                </div>
+                <div class="form-group">
+                    <label for="newPassword">Password</label>
+                    <input type="text" id="newPassword" placeholder="Enter new password" required>
+                </div>
+                <div class="form-group">
+                    <label for="newGroupId">Group</label>
+                    <select id="newGroupId">
+                        <option value="0">Regular User</option>
+                        <option value="1">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="expiresInDays">Expires in (days, 0 for never)</label>
+                    <input type="number" id="expiresInDays" min="0" value="0" placeholder="0 for no expiration">
+                </div>
+                <button id="createBtn">
+                    <span id="createText">Add User</span>
+                    <span id="createSpinner" class="hidden"><div class="loading"></div> Creating...</span>
+                </button>
+            </div>
+            
+            <div class="status-container">
+                <div id="userStatus"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="heartPulse" class="heart-pulse">
+        <i class="fas fa-heart"></i>
+    </div>
+
+    <div id="infoToggle" class="info-toggle">
+        <i class="fas fa-info"></i>
+    </div>
+
+    <div id="infoPanel" class="info-panel">
+        <h3>Info</h3>
+        <p>Made by m1le with love</p>
+        <a href="https://www.youtube.com/@M1leHvH" target="_blank" class="info-link">
+            <i class="fab fa-youtube"></i> YouTube: M1leHvH
+        </a>
+        <div class="info-link">
+            <i class="fab fa-discord"></i> Discord: m1lehvh
+        </div>
+    </div>
+
+    <script>
+        const serverUrl = "ws://e2.aurorix.net:25422";
+        let ws;
+        let isAdmin = false;
+        let currentEditUser = null;
+        let pingInterval;
+        let lastPingTime = 0;
+        let pingTimeout;
+        
+        function setCookie(name, value, days) {
+            let expires = "";
+            if (days) {
+                const date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toUTCString();
+            }
+            document.cookie = name + "=" + (value || "") + expires + "; path=/";
+        }
+        
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+            for(let i=0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+            }
+            return null;
+        }
+        
+        function eraseCookie(name) {   
+            document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        }
+
+        function loadSavedCredentials() {
+            const remember = getCookie('rememberAdmin') === 'true';
+            if (remember) {
+                document.getElementById('adminLogin').value = getCookie('adminLogin') || '';
+                document.getElementById('adminPassword').value = getCookie('adminPassword') || '';
+                document.getElementById('rememberMe').checked = true;
+            }
+        }
+        
+        function updateHeartStatus(connected) {
+            const heart = document.getElementById('heartPulse');
+            if (connected) {
+                heart.classList.add('connected');
+            } else {
+                heart.classList.remove('connected');
+            }
+        }
+
+        function connect() {
+            ws = new WebSocket(serverUrl);
+            
+            ws.onopen = () => {
+                updateHeartStatus(true);
+                pingInterval = setInterval(() => {
+                    if (ws.readyState === WebSocket.OPEN) {
+                        lastPingTime = Date.now();
+                        ws.send(JSON.stringify({ type: 'ping' }));
+                        
+                        clearTimeout(pingTimeout);
+                        pingTimeout = setTimeout(() => {
+                            document.getElementById('pingValue').textContent = "Timeout";
+                            document.getElementById('pingIndicator').className = "ping-indicator ping-bad";
+                        }, 3000);
+                    }
+                }, 5000);
+                
+                const remember = getCookie('rememberAdmin') === 'true';
+                if (remember) {
+                    const login = getCookie('adminLogin');
+                    const password = getCookie('adminPassword');
+                    if (login && password) {
+                        document.getElementById('adminLogin').value = login;
+                        document.getElementById('adminPassword').value = password;
+                        document.getElementById('loginBtn').click();
+                    }
+                }
+            };
+            
+            ws.onclose = () => {
+                updateHeartStatus(false);
+                clearInterval(pingInterval);
+                setTimeout(connect, 3000);
+            };
+            
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    
+                    if (data.type === 'pong') {
+                        const ping = Date.now() - lastPingTime;
+                        document.getElementById('pingValue').textContent = ping + " ms";
+                        
+                        const pingIndicator = document.getElementById('pingIndicator');
+                        if (ping < 100) {
+                            pingIndicator.className = "ping-indicator ping-good";
+                        } else if (ping < 300) {
+                            pingIndicator.className = "ping-indicator ping-medium";
+                        } else {
+                            pingIndicator.className = "ping-indicator ping-bad";
+                        }
+                        
+                        clearTimeout(pingTimeout);
+                    }
+
+                    if (data.type === 'maintenance_status') {
+                        document.getElementById('maintenanceEnabled').checked = data.enabled;
+                        document.getElementById('maintenanceReason').value = data.reason || '';
+                    }
+
+                    if (data.type === 'set_maintenance') {
+                        toggleMaintenanceSpinner(false);
+                        if (data.success) {
+                            showMaintenanceStatus("Maintenance settings updated successfully!", "success");
+                        } else {
+                            showMaintenanceStatus("Failed to update maintenance settings: " + (data.message || "Server error"), "error");
+                        }
+                    }
+
+                    if (data.type === 'login') {
+                        toggleLoginSpinner(false);
+                        if (data.success) {
+                            isAdmin = data.grupo_id === 1;
+                            if (isAdmin) {
+                                const remember = document.getElementById('rememberMe').checked;
+                                if (remember) {
+                                    const login = document.getElementById('adminLogin').value;
+                                    const password = document.getElementById('adminPassword').value;
+                                    setCookie('rememberAdmin', 'true', 30);
+                                    setCookie('adminLogin', login, 30);
+                                    setCookie('adminPassword', password, 30);
+                                } else {
+                                    eraseCookie('rememberAdmin');
+                                    eraseCookie('adminLogin');
+                                    eraseCookie('adminPassword');
+                                }
+                                
+                                document.getElementById('loginForm').classList.add('hidden');
+                                document.getElementById('adminPanel').classList.remove('hidden');
+                                showStatus("Logged in successfully", "success");
+                                loadUsersList();
+                            } else {
+                                showStatus("Access denied: You need admin privileges", "error");
+                            }
+                        } else {
+                            showStatus("Login failed: " + (data.message || "Invalid credentials"), "error");
+                        }
+                    }
+                    
+                    if (data.type === 'add_user') {
+                        toggleCreateSpinner(false);
+                        if (data.success) {
+                            showUserStatus(`User <strong>${escapeHtml(data.login)}</strong> created successfully!`, "success");
+                            document.getElementById('newLogin').value = '';
+                            document.getElementById('newPassword').value = '';
+                            document.getElementById('expiresInDays').value = '0';
+                            loadUsersList();
+                        } else {
+                            showUserStatus('Failed to add user: ' + (data.message || "Server error"), "error");
+                        }
+                    }
+                    
+                    if (data.type === 'update_user') {
+                        toggleEditSpinner(false);
+                        if (data.success) {
+                            showUserStatus(`User <strong>${escapeHtml(data.login)}</strong> updated successfully!`, "success");
+                            document.getElementById('editUserForm').classList.add('hidden');
+                            loadUsersList();
+                        } else {
+                            showUserStatus('Failed to update user: ' + (data.message || "Server error"), "error");
+                        }
+                    }
+                    
+                    if (data.type === 'delete_user') {
+                        if (data.success) {
+                            showUserStatus(`User <strong>${escapeHtml(data.login)}</strong> deleted successfully!`, "success");
+                            loadUsersList();
+                        } else {
+                            showUserStatus('Failed to delete user: ' + (data.message || "Server error"), "error");
+                        }
+                    }
+                    
+                    if (data.type === 'users_list') {
+                        renderUsersList(data.users);
+                    }
+                } catch (e) {
+                    console.error("Error parsing server message:", e);
+                    toggleLoginSpinner(false);
+                    toggleCreateSpinner(false);
+                    toggleEditSpinner(false);
+                    showStatus("Error processing server response", "error");
+                }
+            };
+        }
+        
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function toggleMaintenanceSpinner(show) {
+            document.getElementById('saveMaintenanceText').classList.toggle('hidden', show);
+            document.getElementById('saveMaintenanceSpinner').classList.toggle('hidden', !show);
+        }
+
+        function showMaintenanceStatus(message, type = "info") {
+            const status = document.getElementById('maintenanceStatus');
+            status.innerHTML = `
+                <div class="notification ${type}">
+                    <i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                    ${message}
+                </div>
+            `;
+        }
+
+        function toggleLoginSpinner(show) {
+            document.getElementById('loginText').classList.toggle('hidden', show);
+            document.getElementById('loginSpinner').classList.toggle('hidden', !show);
+        }
+        
+        function toggleCreateSpinner(show) {
+            document.getElementById('createText').classList.toggle('hidden', show);
+            document.getElementById('createSpinner').classList.toggle('hidden', !show);
+        }
+        
+        function toggleEditSpinner(show) {
+            const saveBtn = document.getElementById('saveEditBtn');
+            if (show) {
+                saveBtn.innerHTML = '<div class="loading"></div> Saving...';
+            } else {
+                saveBtn.textContent = 'Save Changes';
+            }
+        }
+        
+        function loadUsersList() {
+            if (!isAdmin || !ws || ws.readyState !== WebSocket.OPEN) return;
+            
+            ws.send(JSON.stringify({
+                type: 'get_users'
+            }));
+        }
+        
+        function renderUsersList(users) {
+            const usersList = document.getElementById('usersList');
+            usersList.innerHTML = '';
+            
+            if (!users || users.length === 0) {
+                usersList.innerHTML = '<tr><td colspan="4" style="text-align: center;">No users found</td></tr>';
+                return;
+            }
+            
+            const searchTerm = document.getElementById('searchUsers').value.toLowerCase();
+            
+            users
+                .filter(user => user.login.toLowerCase().includes(searchTerm))
+                .forEach(user => {
+                    const row = document.createElement('tr');
+                    
+                    let expiresText = 'Never';
+                    if (user.expires) {
+                        const expiresDate = new Date(user.expires);
+                        if (!isNaN(expiresDate.getTime())) {
+                            expiresText = expiresDate.toLocaleDateString() + ' ' + expiresDate.toLocaleTimeString();
+                            
+                            if (expiresDate < new Date()) {
+                                expiresText += ' (Expired)';
+                            }
+                        }
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${escapeHtml(user.login)}</td>
+                        <td>${user.grupo_id === 1 ? 'Admin' : 'Regular User'}</td>
+                        <td>${expiresText}</td>
+                        <td class="action-buttons">
+                            <button class="edit-user" data-login="${escapeHtml(user.login)}">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="danger delete-user" data-login="${escapeHtml(user.login)}">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </button>
+                        </td>
+                    `;
+                    
+                    usersList.appendChild(row);
+                });
+            
+            document.querySelectorAll('.edit-user').forEach(btn => {
+                btn.addEventListener('click', () => editUser(btn.dataset.login));
+            });
+            
+            document.querySelectorAll('.delete-user').forEach(btn => {
+                btn.addEventListener('click', () => deleteUser(btn.dataset.login));
+            });
+        }
+        
+        function editUser(login) {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                showUserStatus("Error: Not connected to server", "error");
+                return;
+            }
+            
+            currentEditUser = login;
+            document.getElementById('editLogin').value = login;
+            document.getElementById('editPassword').value = '';
+            document.getElementById('editGroupId').value = '0';
+            document.getElementById('editExpiresInDays').value = '0';
+            
+            document.getElementById('editUserForm').classList.remove('hidden');
+            document.getElementById('editUserForm').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function saveUserChanges() {
+            if (!currentEditUser || !ws || ws.readyState !== WebSocket.OPEN) {
+                showUserStatus("Error: Not connected to server or no user selected", "error");
+                return;
+            }
+            
+            const newPassword = document.getElementById('editPassword').value.trim();
+            const newGroupId = document.getElementById('editGroupId').value;
+            const expiresInDays = document.getElementById('editExpiresInDays').value;
+            
+            const data = {
+                type: 'update_user',
+                login: currentEditUser,
+                newGroupId: parseInt(newGroupId)
+            };
+            
+            if (newPassword) {
+                data.newPassword = newPassword;
+            }
+            
+            if (expiresInDays && expiresInDays > 0) {
+                const expirationDate = new Date();
+                expirationDate.setDate(expirationDate.getDate() + parseInt(expiresInDays));
+                data.expires = expirationDate.toISOString();
+            } else {
+                data.expires = null;
+            }
+            
+            ws.send(JSON.stringify(data));
+            toggleEditSpinner(true);
+            showUserStatus("Updating user...", "info");
+        }
+        
+        function deleteUser(login) {
+            if (!confirm(`Are you sure you want to delete user ${login}? This action cannot be undone.`)) {
+                return;
+            }
+            
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                showUserStatus("Error: Not connected to server", "error");
+                return;
+            }
+            
+            ws.send(JSON.stringify({
+                type: 'delete_user',
+                login: login
+            }));
+            
+            showUserStatus(`Deleting user ${escapeHtml(login)}...`, "info");
+        }
+
+        document.getElementById('saveMaintenanceBtn').addEventListener('click', () => {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                showMaintenanceStatus("Error: Not connected to server", "error");
+                return;
+            }
+            
+            const enabled = document.getElementById('maintenanceEnabled').checked;
+            const reason = document.getElementById('maintenanceReason').value.trim();
+            
+            ws.send(JSON.stringify({
+                type: 'set_maintenance',
+                enabled: enabled,
+                reason: reason || "Server is under maintenance. Please try again later."
+            }));
+            
+            toggleMaintenanceSpinner(true);
+            showMaintenanceStatus("Updating maintenance settings...", "info");
+        });
+        
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                showStatus("Error: Not connected to server", "error");
+                return;
+            }
+            
+            const login = document.getElementById('adminLogin').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
+            
+            if (!login || !password) {
+                showStatus("Please enter both username and password", "error");
+                return;
+            }
+            
+            ws.send(JSON.stringify({
+                type: 'login',
+                login: login,
+                senha: password
+            }));
+            
+            toggleLoginSpinner(true);
+            showStatus("Authenticating...", "info");
+        });
+        
+        document.getElementById('createBtn').addEventListener('click', () => {
+            if (!isAdmin) {
+                showUserStatus("Error: Not logged in as admin", "error");
+                return;
+            }
+            
+            const newLogin = document.getElementById('newLogin').value.trim();
+            const newPassword = document.getElementById('newPassword').value.trim();
+            const newGroupId = document.getElementById('newGroupId').value;
+            const expiresInDays = document.getElementById('expiresInDays').value;
+            
+            if (!newLogin || !newPassword) {
+                showUserStatus("Please fill all required fields", "error");
+                return;
+            }
+            
+            const data = {
+                type: 'add_user',
+                newLogin: newLogin,
+                newPassword: newPassword,
+                newGroupId: parseInt(newGroupId)
+            };
+            
+            if (expiresInDays && expiresInDays > 0) {
+                data.expiresInDays = parseInt(expiresInDays);
+            }
+            
+            ws.send(JSON.stringify(data));
+            toggleCreateSpinner(true);
+            showUserStatus("Creating user...", "info");
+        });
+        
+        document.getElementById('saveEditBtn').addEventListener('click', saveUserChanges);
+        
+        document.getElementById('cancelEditBtn').addEventListener('click', () => {
+            document.getElementById('editUserForm').classList.add('hidden');
+            currentEditUser = null;
+        });
+        
+        document.getElementById('searchUsers').addEventListener('input', () => {
+            loadUsersList();
+        });
+        
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+            });
+        });
+        
+        function showStatus(message, type = "info") {
+            const status = document.getElementById('status');
+            status.innerHTML = `
+                <div class="notification ${type}">
+                    <i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                    ${message}
+                </div>
+            `;
+        }
+        
+        function showUserStatus(message, type = "info") {
+            const status = document.getElementById('userStatus');
+            status.innerHTML = `
+                <div class="notification ${type}">
+                    <i class="fas fa-${type === 'error' ? 'exclamation-circle' : type === 'success' ? 'check-circle' : 'info-circle'}"></i>
+                    ${message}
+                </div>
+            `;
+        }
+
+        document.getElementById('infoToggle').addEventListener('click', () => {
+            document.getElementById('infoPanel').classList.toggle('visible');
+        });
+
+        loadSavedCredentials();
+        connect();
+    </script>
 </body>
 </html>

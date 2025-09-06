@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Process Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #3498db;
+            --danger: #e74c3c;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --gray: #95a5a6;
+            --dark-bg: #1a1a2e;
+            --card-bg: #16213e;
+            --text-color: #e6e6e6;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-color);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+        }
+        
+        .card-title i {
+            margin-right: 10px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-running {
+            background-color: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+        
+        .status-stopped {
+            background-color: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn i {
+            margin-right: 5px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: 600;
+            margin: 5px 0;
+            color: white;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--success);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .log-container {
+            background-color: #0f0f0f;
+            color: #d4d4d4;
+            font-family: 'Courier New', monospace;
+            padding: 15px;
+            border-radius: 5px;
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            line-height: 1.4;
+            font-size: 13px;
+        }
+        
+        .log-time {
+            color: #569cd6;
+        }
+        
+        .log-message {
+            color: #d4d4d4;
+        }
+        
+        .log-error .log-message {
+            color: #f48771;
+        }
+        
+        .log-command .log-message {
+            color: #4ec9b0;
+        }
+        
+        .log-system .log-message {
+            color: #9cdcfe;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: rgba(0,0,0,0.3);
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #4b6cb7);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .system-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .info-item {
+            margin-bottom: 10px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--gray);
+        }
+        
+        .info-value {
+            word-break: break-all;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .ping-results {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .ping-item {
+            background: rgba(0,0,0,0.2);
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 3px solid var(--primary);
+        }
+        
+        .ping-success {
+            border-left-color: var(--success);
+        }
+        
+        .ping-failure {
+            border-left-color: var(--danger);
+        }
+        
+        .command-input {
+            display: flex;
+            margin-top: 10px;
+        }
+        
+        .command-input input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.2);
+            color: white;
+            border-radius: 4px 0 0 4px;
+        }
+        
+        .command-input button {
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .chart-container {
+            height: 200px;
+            margin-top: 15px;
+            position: relative;
+        }
+        
+        .connection-status {
+            display: flex;
+            align-items: center;
+            background: rgba(0,0,0,0.2);
+            padding: 5px 10px;
+            border-radius: 20px;
+        }
+        
+        .connection-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .connection-connected {
+            background-color: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+        
+        .connection-disconnected {
+            background-color: var(--danger);
+            box-shadow: 0 0 10px var(--danger);
+        }
+        
+        .connection-connecting {
+            background-color: var(--warning);
+            box-shadow: 0 0 10px var(--warning);
+        }
+        
+        .tab-container {
+            margin-bottom: 20px;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab.active {
+            border-bottom: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .process-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .process-table th, .process-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .process-table th {
+            background: rgba(0,0,0,0.2);
+            color: var(--gray);
+        }
+        
+        .process-table tr:hover {
+            background: rgba(255,255,255,0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-server"></i> Advanced Process Manager</h1>
+            <div class="connection-status" id="connection-status">
+                <div class="connection-dot connection-connecting" id="connection-dot"></div>
+                <span id="connection-text">Connecting...</span>
+            </div>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Process Status</div>
+                <div class="stat-value" id="process-status">
+                    <span class="status-indicator status-stopped"></span>
+                    <span>Stopped</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Uptime</div>
+                <div class="stat-value" id="uptime">00:00:00</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Restart Count</div>
+                <div class="stat-value" id="restart-count">0</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Active Connections</div>
+                <div class="stat-value" id="connection-count">0</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">System Load</div>
+                <div class="stat-value" id="system-load">0.00</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-label">Network Traffic</div>
+                <div class="stat-value" id="network-traffic">0 KB/s</div>
+            </div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div>
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-cogs"></i> Process Control</div>
+                    <div class="btn-group">
+                        <button id="start-btn" class="btn btn-success"><i class="fas fa-play"></i> Start</button>
+                        <button id="stop-btn" class="btn btn-danger" disabled><i class="fas fa-stop"></i> Stop</button>
+                        <button id="restart-btn" class="btn btn-warning" disabled><i class="fas fa-redo"></i> Restart</button>
+                    </div>
+                    <div style="display: flex; align-items: center; margin-top: 15px;">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="autorestart-toggle">
+                            <span class="slider"></span>
+                        </label>
+                        <span style="margin-left: 10px;">Auto Restart</span>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <div class="info-label">Send Command to Process</div>
+                        <div class="command-input">
+                            <input type="text" id="command-input" placeholder="Enter command...">
+                            <button id="send-command" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-network-wired"></i> Network Monitoring</div>
+                    <div class="info-item">
+                        <div class="info-label">Upload Speed</div>
+                        <div id="network-tx">0 KB/s</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="network-tx-bar"></div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Download Speed</div>
+                        <div id="network-rx">0 KB/s</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="network-rx-bar"></div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <div class="info-label">Ping Results</div>
+                        <div class="ping-results" id="ping-results">
+                            <div class="ping-item">
+                                <div>Loading...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-tachometer-alt"></i> System Resources</div>
+                    <div class="system-info">
+                        <div>
+                            <div class="info-item">
+                                <div class="info-label">CPU Usage</div>
+                                <div id="cpu-usage">-</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="cpu-progress"></div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Memory Usage</div>
+                                <div id="memory-usage">-</div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="memory-progress"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="info-item">
+                                <div class="info-label">Operating System</div>
+                                <div id="os-info">-</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Node.js Version</div>
+                                <div id="node-version">-</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-container" id="load-chart"></div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="card">
+                    <div class="card-title"><i class="fas fa-terminal"></i> Process Logs</div>
+                    <div class="log-container" id="log-container">
+                        <div class="log-entry log-system">
+                            <span class="log-time">[00:00:00]</span>
+                            <span class="log-message">Connecting to server...</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px;">
+                        <button id="clear-logs" class="btn btn-danger"><i class="fas fa-trash"></i> Clear Logs</button>
+                        <div>
+                            <button id="pause-logs" class="btn btn-warning"><i class="fas fa-pause"></i> Pause</button>
+                            <button id="resume-logs" class="btn btn-success" style="display: none;"><i class="fas fa-play"></i> Resume</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="tab-container">
+                        <div class="tabs">
+                            <div class="tab active" data-tab="processes">Processes</div>
+                            <div class="tab" data-tab="disks">Disks</div>
+                            <div class="tab" data-tab="network">Network</div>
+                        </div>
+                        
+                        <div class="tab-content active" id="processes-tab">
+                            <table class="process-table">
+                                <thead>
+                                    <tr>
+                                        <th>PID</th>
+                                        <th>Name</th>
+                                        <th>CPU %</th>
+                                        <th>Memory</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="processes-list">
+                                    <tr>
+                                        <td colspan="4">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="tab-content" id="disks-tab">
+                            <table class="process-table">
+                                <thead>
+                                    <tr>
+                                        <th>Device</th>
+                                        <th>Type</th>
+                                        <th>Size</th>
+                                        <th>Vendor</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="disks-list">
+                                    <tr>
+                                        <td colspan="4">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="tab-content" id="network-tab">
+                            <table class="process-table">
+                                <thead>
+                                    <tr>
+                                        <th>Interface</th>
+                                        <th>IP</th>
+                                        <th>MAC</th>
+                                        <th>Speed</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="network-list">
+                                    <tr>
+                                        <td colspan="4">Loading...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // DOM elements
+        const startBtn = document.getElementById('start-btn');
+        const stopBtn = document.getElementById('stop-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const autorestartToggle = document.getElementById('autorestart-toggle');
+        const processStatus = document.getElementById('process-status');
+        const uptimeElement = document.getElementById('uptime');
+        const restartCountElement = document.getElementById('restart-count');
+        const connectionCountElement = document.getElementById('connection-count');
+        const systemLoadElement = document.getElementById('system-load');
+        const networkTrafficElement = document.getElementById('network-traffic');
+        const connectionDot = document.getElementById('connection-dot');
+        const connectionText = document.getElementById('connection-text');
+        const logContainer = document.getElementById('log-container');
+        const commandInput = document.getElementById('command-input');
+        const sendCommandBtn = document.getElementById('send-command');
+        const clearLogsBtn = document.getElementById('clear-logs');
+        const pauseLogsBtn = document.getElementById('pause-logs');
+        const resumeLogsBtn = document.getElementById('resume-logs');
+        const pingResultsContainer = document.getElementById('ping-results');
+        
+        // System info elements
+        const cpuUsageElement = document.getElementById('cpu-usage');
+        const memoryUsageElement = document.getElementById('memory-usage');
+        const osInfoElement = document.getElementById('os-info');
+        const nodeVersionElement = document.getElementById('node-version');
+        const cpuProgress = document.getElementById('cpu-progress');
+        const memoryProgress = document.getElementById('memory-progress');
+        const networkTxElement = document.getElementById('network-tx');
+        const networkRxElement = document.getElementById('network-rx');
+        const networkTxBar = document.getElementById('network-tx-bar');
+        const networkRxBar = document.getElementById('network-rx-bar');
+        
+        // Tab elements
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Chart
+        let loadChart;
+        let loadHistory = [];
+        let logsPaused = false;
+        
+        // Initialize load chart
+        function initLoadChart() {
+            const ctx = document.getElementById('load-chart').getContext('2d');
+            loadChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array(60).fill(''),
+                    datasets: [{
+                        label: 'System Load (1m)',
+                        data: Array(60).fill(0),
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 1,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#95a5a6'
+                            }
+                        },
+                        x: {
+                            display: false,
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: false
+                        }
+                    },
+                    elements: {
+                        point: {
+                            radius: 0
+                        }
+                    }
+                }
+            });
+        }
+        
+        // WebSocket connection
+        const socket = new WebSocket(`ws://e2.aurorix.net:25824`);
+        
+        // Connection status
+        socket.onopen = () => {
+            connectionDot.className = 'connection-dot connection-connected';
+            connectionText.textContent = 'Connected';
+            addLog('Connected to server', 'system');
+        };
+        
+        socket.onclose = () => {
+            connectionDot.className = 'connection-dot connection-disconnected';
+            connectionText.textContent = 'Disconnected';
+            addLog('Disconnected from server', 'system');
+        };
+        
+        socket.onerror = (error) => {
+            console.error('WebSocket error:', error);
+            connectionDot.className = 'connection-dot connection-connecting';
+            connectionText.textContent = 'Connection Error';
+            addLog(`Connection error: ${error.message}`, 'error');
+        };
+        
+        // Handle incoming messages
+        socket.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            
+            switch (message.type) {
+                case 'status':
+                    updateStatus(message.data);
+                    break;
+                case 'system':
+                    updateSystemInfo(message.data);
+                    break;
+                case 'log':
+                    if (!logsPaused) {
+                        addLog(message.data.message, message.data.type);
+                    }
+                    break;
+                case 'ping':
+                    updatePingResults(message.data);
+                    break;
+                case 'network':
+                    updateNetworkStats(message.data);
+                    break;
+            }
+        };
+        
+        // Update process status
+        function updateStatus(data) {
+            const statusIndicator = processStatus.querySelector('.status-indicator');
+            
+            if (data.isRunning) {
+                statusIndicator.className = 'status-indicator status-running';
+                processStatus.querySelector('span:last-child').textContent = 'Running';
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                restartBtn.disabled = false;
+            } else {
+                statusIndicator.className = 'status-indicator status-stopped';
+                processStatus.querySelector('span:last-child').textContent = 'Stopped';
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                restartBtn.disabled = true;
+            }
+            
+            // Update uptime
+            if (data.uptime > 0) {
+                uptimeElement.textContent = formatTime(data.uptime);
+            } else {
+                uptimeElement.textContent = '00:00:00';
+            }
+            
+            // Update other info
+            restartCountElement.textContent = data.restartCount;
+            connectionCountElement.textContent = data.connections || 0;
+            autorestartToggle.checked = data.isAutoRestart;
+            systemLoadElement.textContent = data.load ? data.load[0].toFixed(2) : '0.00';
+            processIdElement.textContent = data.pid || '-';
+            
+            // Update load chart
+            if (data.load) {
+                loadHistory.push(data.load[0]);
+                if (loadHistory.length > 60) loadHistory.shift();
+                loadChart.data.datasets[0].data = loadHistory;
+                loadChart.update();
+            }
+        }
+        
+        // Update system info
+        function updateSystemInfo(data) {
+            if (!data) return;
+            
+            // CPU info
+            const cpuUsage = data.cpu?.load?.currentLoad || 0;
+            cpuUsageElement.textContent = `${cpuUsage.toFixed(1)}%`;
+            cpuProgress.style.width = `${cpuUsage}%`;
+            
+            // Memory info
+            const memUsage = (data.memory.used / data.memory.total) * 100;
+            const usedGB = (data.memory.used / 1024 / 1024 / 1024).toFixed(2);
+            const totalGB = (data.memory.total / 1024 / 1024 / 1024).toFixed(2);
+            memoryUsageElement.textContent = `${memUsage.toFixed(1)}% (${usedGB} GB / ${totalGB} GB)`;
+            memoryProgress.style.width = `${memUsage}%`;
+            
+            // System info
+            osInfoElement.textContent = `${data.os?.distro || ''} ${data.os?.release || ''}`;
+            nodeVersionElement.textContent = data.nodeVersion || '-';
+            
+            // Processes
+            if (data.processes) {
+                updateProcessTable(data.processes);
+            }
+            
+            // Disks
+            if (data.disks) {
+                updateDiskTable(data.disks);
+            }
+            
+            // Network interfaces
+            if (data.network) {
+                updateNetworkTable(data.network);
+            }
+        }
+        
+        // Update process table
+        function updateProcessTable(processes) {
+            const tbody = document.getElementById('processes-list');
+            tbody.innerHTML = '';
+            
+            processes.slice(0, 10).forEach(proc => {
+                const memMB = (proc.mem / 1024 / 1024).toFixed(1);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${proc.pid}</td>
+                    <td>${proc.name}</td>
+                    <td>${proc.cpu.toFixed(1)}%</td>
+                    <td>${memMB} MB</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Update disk table
+        function updateDiskTable(disks) {
+            const tbody = document.getElementById('disks-list');
+            tbody.innerHTML = '';
+            
+            disks.forEach(disk => {
+                const sizeGB = (disk.size / 1024 / 1024 / 1024).toFixed(1);
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${disk.device || '-'}</td>
+                    <td>${disk.type || '-'}</td>
+                    <td>${sizeGB} GB</td>
+                    <td>${disk.vendor || '-'}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Update network table
+        function updateNetworkTable(network) {
+            const tbody = document.getElementById('network-list');
+            tbody.innerHTML = '';
+            
+            network.forEach(iface => {
+                if (iface.iface !== 'lo') {
+                    const speed = iface.speed ? `${iface.speed} Mbps` : '-';
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${iface.iface}</td>
+                        <td>${iface.ip4 || '-'}</td>
+                        <td>${iface.mac || '-'}</td>
+                        <td>${speed}</td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            });
+        }
+        
+        // Update ping results
+        function updatePingResults(results) {
+            pingResultsContainer.innerHTML = '';
+            
+            for (const [target, data] of Object.entries(results)) {
+                const pingItem = document.createElement('div');
+                pingItem.className = `ping-item ${data.alive ? 'ping-success' : 'ping-failure'}`;
+                
+                if (data.alive) {
+                    pingItem.innerHTML = `
+                        <div><strong>${target}</strong></div>
+                        <div>${data.time} ms</div>
+                        <div>Packet loss: ${data.packetLoss || 0}%</div>
+                    `;
+                } else {
+                    pingItem.innerHTML = `
+                        <div><strong>${target}</strong></div>
+                        <div>Unreachable</div>
+                        ${data.error ? `<div>${data.error}</div>` : ''}
+                    `;
+                }
+                
+                pingResultsContainer.appendChild(pingItem);
+            }
+        }
+        
+        // Update network stats
+        function updateNetworkStats(stats) {
+            if (!stats) return;
+            
+            networkTxElement.textContent = stats.txHuman || '0 KB/s';
+            networkRxElement.textContent = stats.rxHuman || '0 KB/s';
+            
+            // Calculate percentage for bars (assuming 1Gbps max)
+            const txPercent = Math.min(100, (stats.txRate / 125000) * 100);
+            const rxPercent = Math.min(100, (stats.rxRate / 125000) * 100);
+            
+            networkTxBar.style.width = `${txPercent}%`;
+            networkRxBar.style.width = `${rxPercent}%`;
+            
+            // Update traffic summary
+            const maxTraffic = Math.max(stats.txRate, stats.rxRate);
+            networkTrafficElement.textContent = formatBytes(maxTraffic) + '/s';
+        }
+        
+        // Add log entry
+        function addLog(message, type = 'info') {
+            const now = new Date();
+            const timeString = `[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}]`;
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `<span class="log-time">${timeString}</span> <span class="log-message">${message}</span>`;
+            
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+        
+        // Format time
+        function formatTime(ms) {
+            const seconds = Math.floor(ms / 1000);
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        // Format bytes
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // Tab switching
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+            });
+        });
+        
+        // Button event listeners
+        startBtn.addEventListener('click', () => {
+            socket.send(JSON.stringify({ action: 'start' }));
+        });
+        
+        stopBtn.addEventListener('click', () => {
+            socket.send(JSON.stringify({ action: 'stop' }));
+        });
+        
+        restartBtn.addEventListener('click', () => {
+            socket.send(JSON.stringify({ action: 'restart' }));
+        });
+        
+        autorestartToggle.addEventListener('change', () => {
+            socket.send(JSON.stringify({ 
+                action: 'autorestart',
+                enabled: autorestartToggle.checked
+            }));
+        });
+        
+        sendCommandBtn.addEventListener('click', () => {
+            const command = commandInput.value.trim();
+            if (command) {
+                socket.send(JSON.stringify({
+                    action: 'command',
+                    command: command
+                }));
+                commandInput.value = '';
+            }
+        });
+        
+        commandInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendCommandBtn.click();
+            }
+        });
+        
+        clearLogsBtn.addEventListener('click', () => {
+            logContainer.innerHTML = '';
+        });
+        
+        pauseLogsBtn.addEventListener('click', () => {
+            logsPaused = true;
+            pauseLogsBtn.style.display = 'none';
+            resumeLogsBtn.style.display = 'inline-block';
+        });
+        
+        resumeLogsBtn.addEventListener('click', () => {
+            logsPaused = false;
+            resumeLogsBtn.style.display = 'none';
+            pauseLogsBtn.style.display = 'inline-block';
+        });
+        
+        // Initialize
+        initLoadChart();
+        addLog('Admin panel initialized', 'system');
+        
+        // Request initial system info
+        socket.onopen = () => {
+            connectionDot.className = 'connection-dot connection-connected';
+            connectionText.textContent = 'Connected';
+            addLog('Connected to server', 'system');
+            
+            // Request full system info
+            socket.send(JSON.stringify({ action: 'getSystemInfo' }));
+            socket.send(JSON.stringify({ action: 'getPing' }));
+        };
+    </script>
+</body>
+</html>
